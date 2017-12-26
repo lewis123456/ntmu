@@ -1,3 +1,5 @@
+ntmu represents "nice to meet you"
+
 1 spring boot
 2 mysql
 3 druid
