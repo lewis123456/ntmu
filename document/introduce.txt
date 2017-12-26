@@ -1,0 +1,6 @@
+1 spring boot
+2 mysql
+3 druid
+4 mybatis
+5 redis
+6 log4j2
