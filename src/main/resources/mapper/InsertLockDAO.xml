@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.lewis.ntmu.integration.dao.impl.InsertLockDAOImpl">
+    <resultMap id="resultMap" type="org.lewis.ntmu.common.InsertLockDTO">
+        <result property="method" column="method"/>
+        <result property="ipThreadId" column="ip_thread_id"/>
+    </resultMap>
+    <sql id="basic_column">
+        method, ip_thread_id
+    </sql>
+
+    <select id="insertLock" parameterType="org.lewis.ntmu.common.InsertLockDTO">
+        insert into insert_lock values(
+          method,
+          ip_thread_id
+        ) values (
+          #{method},
+          #{ipThreadId}
+        )
+    </select>
+
+    <delete id="deleteLock" parameterType="java.lang.String">
+        delete from insert_lock
+        where method = #{method}
+    </delete>
+
+    <select id="selectByMethod" parameterType="java.lang.String" resultMap="resultMap">
+        select * from insert_lock where method = #{method}
+    </select>
+</mapper>
