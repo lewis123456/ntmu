@@ -1,5 +1,6 @@
 package org.lewis.ntmu.controller;
 
+import org.lewis.ntmu.common.InsertLockDTO;
 import org.lewis.ntmu.utils.DbLockUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,29 @@ public class MyTestController extends BaseController{
                          HttpServletResponse httpServletResponse) {
         String response = null;
         try {
+            InsertLockDTO insertLockDTO = new InsertLockDTO();
+            insertLockDTO.setIpThreadId(dbLockUtil.getIpThreadId());
+            insertLockDTO.setMethod("test1");
+            if (dbLockUtil.getInsertLock(insertLockDTO)) {
+                LOGGER.info("get lock success");
+            }
+            Runnable one = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        InsertLockDTO insertLockDTO = new InsertLockDTO();
+                        insertLockDTO.setIpThreadId(dbLockUtil.getIpThreadId());
+                        insertLockDTO.setMethod("test1");
+                        if (dbLockUtil.getInsertLock(insertLockDTO)) {
+                            LOGGER.info("get lock success");
+                        }
+                    } catch (Exception e) {
+                        LOGGER.error("get lock fail", e);
+                    }
+
+                }
+            };
+            one.run();
             response = dbLockUtil.getIpThreadId();
         } catch (Exception e) {
             LOGGER.error("", e);

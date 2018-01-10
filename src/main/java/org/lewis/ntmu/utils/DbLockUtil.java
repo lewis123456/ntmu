@@ -1,5 +1,7 @@
 package org.lewis.ntmu.utils;
 
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.lewis.ntmu.common.InsertLockDTO;
 import org.lewis.ntmu.integration.dao.InsertLockDAO;
 import org.slf4j.Logger;
@@ -26,15 +28,13 @@ public class DbLockUtil {
     private InsertLockDAO insertLockDAO;
 
     public boolean getInsertLock(InsertLockDTO request) throws Exception{
-        /*boolean result = true;
+        boolean result = true;
         try {
             insertLockDAO.insertLock(request);
-        } catch (Exception e) {
+        } catch (PersistenceException e) {
             result = false;
         }
-        return result;*/
-        insertLockDAO.insertLock(request);
-        return true;
+        return result;
     }
 
     public void releaseInsertLock(String method) throws Exception {
@@ -45,25 +45,23 @@ public class DbLockUtil {
         return insertLockDAO.selectByMethod(method);
     }
 
-    //todo: get ip failed
     public String getIpThreadId() throws Exception{
-        Properties properties = System.getProperties();
-        LOGGER.info("{}", properties.getProperty("java.net.preferIPv4Stack"));
-        Enumeration allNetInterfaces = NetworkInterface.getNetworkInterfaces();
         String ip = null;
-        InetAddress maybeIp = null;
-        while (allNetInterfaces.hasMoreElements()) {
-            NetworkInterface networkInterface = (NetworkInterface)allNetInterfaces.nextElement();
-            LOGGER.info("{}", networkInterface);
-            Enumeration addresses = networkInterface.getInetAddresses();
-            maybeIp = (InetAddress) addresses.nextElement();
-            LOGGER.info("maybeIp {}", maybeIp.getHostAddress());
-            if (!maybeIp.isSiteLocalAddress() && !maybeIp.isLoopbackAddress() &&
-                    -1 == maybeIp.getHostAddress().indexOf(":")) {
-                ip = maybeIp.getHostAddress();
-                break;
-            } else {
-                maybeIp = null;
+        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+            NetworkInterface intf = en.nextElement();
+            String name = intf.getName();
+            if (!name.contains("docker") && !name.contains("lo")) {
+                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress()) {
+                        String ipaddress = inetAddress.getHostAddress().toString();
+                        if (!ipaddress.contains("::") && !ipaddress.contains("0:0:") && !ipaddress.contains("fe80")) {
+                            ip = ipaddress;
+                            LOGGER.info("ip {}", ip);
+                            break;
+                        }
+                    }
+                }
             }
         }
         long threadId = Thread.currentThread().getId();

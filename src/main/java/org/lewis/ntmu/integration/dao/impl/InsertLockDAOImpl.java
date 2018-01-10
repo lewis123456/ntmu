@@ -17,7 +17,7 @@ public class InsertLockDAOImpl extends SimpleDAO implements InsertLockDAO {
     @Override
     public void insertLock(InsertLockDTO request) throws SQLException {
         try (SqlSession sqlSession = getSession()) {
-            InsertLockDAO mapper = sqlSession.getMapper(InsertLockDAOImpl.class);
+            InsertLockDAO mapper = sqlSession.getMapper(InsertLockDAO.class);
             mapper.insertLock(request);
         }
     }
@@ -25,7 +25,7 @@ public class InsertLockDAOImpl extends SimpleDAO implements InsertLockDAO {
     @Override
     public void deleteLock(String method) throws SQLException {
         try (SqlSession sqlSession = getSession()) {
-            InsertLockDAO mapper = sqlSession.getMapper(InsertLockDAOImpl.class);
+            InsertLockDAO mapper = sqlSession.getMapper(InsertLockDAO.class);
             mapper.deleteLock(method);
         }
     }
@@ -33,7 +33,7 @@ public class InsertLockDAOImpl extends SimpleDAO implements InsertLockDAO {
     @Override
     public InsertLockDTO selectByMethod(String method) throws SQLException {
         try (SqlSession sqlSession = getSession()) {
-            InsertLockDAO mapper = sqlSession.getMapper(InsertLockDAOImpl.class);
+            InsertLockDAO mapper = sqlSession.getMapper(InsertLockDAO.class);
             return mapper.selectByMethod(method);
         }
     }

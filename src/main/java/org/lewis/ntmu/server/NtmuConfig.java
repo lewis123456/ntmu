@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -87,11 +85,12 @@ public class NtmuConfig {
         try {
             SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
             sqlSessionFactoryBean.setDataSource(druidDataSource());
+            sqlSessionFactoryBean.setConfigLocation(new DefaultResourceLoader().getResource("classpath:mybatis-config.xml"));
             Resource[] resources = new PathMatchingResourcePatternResolver()
                     .getResources("classpath:mapper/*.xml");
             sqlSessionFactoryBean.setMapperLocations(resources);
-            sqlSessionFactoryBean.setConfigLocation(new DefaultResourceLoader().getResource("classpath:mybatis-config.xml"));
             result = sqlSessionFactoryBean.getObject();
+            LOGGER.info("create sqlSessionFactory success");
         } catch (Exception e) {
             LOGGER.error("create sqlSessionFactory fail", e);
         }
