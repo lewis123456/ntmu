@@ -38,3 +38,8 @@ mainClassName = 'org.lewis.ntmu.server.NtmuServer'
 bootRun {
 
 }
+
+task copyJars(type: Copy) {
+    from configurations.runtime
+    into 'libs'
+}
