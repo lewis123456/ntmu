@@ -42,16 +42,75 @@ bootRun {
 
 task copyJars(type: Copy) {
     from configurations.runtime
-    into 'libs'
+    into 'lib'
+}
+
+clean.doFirst {
+    delete 'build'
+    delete 'dist'
 }
 
 jar {
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    baseName project.name
+
+    exclude '**/*.properties*'
+    exclude '**/*log4j2.xml*'
+    exclude '/*.xml'
+    exclude 'server.env'
+
     manifest {
         attributes(
-                "Manifest-Version": 1.0,
-                "Main-Class": "org.lewis.ntmu.server.NtmuServer",
-                "Class-Path": configurations.compile.collect { "lib/${it.name}" }.join(' '))
+            "Specification-Version": project.version
+        )
     }
-
 }
+
+task dist(type: Copy, overwrite: true, dependsOn: ['clean', 'jar']) {
+    destinationDir = new File(projectDir, 'dist')
+    includeEmptyDirs = false
+
+    into('/sq/') { from 'src/main/sql' }
+    into('/scripts/') { from 'src/main/scripts' fileMode 0755 }
+    into(/bin/) { from new File(temporaryDir, 'bin') include '**/*' fileMode 0755 }
+    into('/bin/') {
+        from processResources.destinationDir
+        include 'server.env'
+        include 'start.sh'
+        include 'stop.sh'
+    }
+    into('/apps/') { from project.jar.getArchivePath() }
+    into('/lib/') {
+        from configurations.runtime
+        exclude '**/*.properties*'
+        exclude '**/*.log4j2.xml*'
+        exclude '**/*junit*.jar'
+    }
+    into('/conf') {
+        from processResources.destinationDir
+        include '**/*.properties*'
+        include '**/*log4j2.xml*'
+        include '/*.xml'
+        exclude 'server.env'
+    }
+    doLast {
+        new File(destinationDir, 'logs').mkdir()
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

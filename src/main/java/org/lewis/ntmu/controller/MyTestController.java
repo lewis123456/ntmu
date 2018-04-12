@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -59,5 +60,17 @@ public class MyTestController extends BaseController{
         }
 
         return response;
+    }
+
+    @RequestMapping(value = "getIp")
+    public String getIp(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+                        @RequestHeader(value = "X-Real-IP", required = false)String remoteIp) {
+        String result = "wrong";
+        try {
+            result = "remote ip:" + remoteIp + ", local ip_thread:" + dbLockUtil.getIpThreadId();
+        } catch (Exception e) {
+            LOGGER.error("getIp", e);
+        }
+        return result;
     }
 }
